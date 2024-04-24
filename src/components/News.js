@@ -204,32 +204,6 @@ export class News extends Component {
     },
     {
       source: {
-        id: null,
-        name: "[Removed]",
-      },
-      author: null,
-      title: "[Removed]",
-      description: "[Removed]",
-      url: "https://removed.com",
-      urlToImage: null,
-      publishedAt: "1970-01-01T00:00:00Z",
-      content: "[Removed]",
-    },
-    {
-      source: {
-        id: null,
-        name: "[Removed]",
-      },
-      author: null,
-      title: "[Removed]",
-      description: "[Removed]",
-      url: "https://removed.com",
-      urlToImage: null,
-      publishedAt: "1970-01-01T00:00:00Z",
-      content: "[Removed]",
-    },
-    {
-      source: {
         id: "google-news-ca",
         name: "Google News (Canada)",
       },
@@ -327,13 +301,26 @@ export class News extends Component {
         "Tehran almost immediately played down the attack as reckless fireworks, claiming no damage was caused, while Israel stayed silent.\r\nThis satellite image from Planet Labs PBC shows Irans nuclear site … [+9401 chars]",
     },
   ];
-  constructor() {
+  constructor() {                            //constructor calls after program is run
     super();
     console.log("News is being run.");
     this.state = {
       articles: this.articles,
       loading: false,
     };
+  }
+  async componentDidMount() {     
+    console.log('cmd run')                                         //It opens after render method is called  
+    let url = "https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be"  
+    let data = await fetch(url);                                   // fetches data from url to store in data   
+    let parsedData = await data.json();                            // method to convert data into json object format
+    console.log(data)   
+    this.setState(
+      {
+        articles: parsedData.articles,                             // to update our state after data is fetched from api
+        loading: true,
+      }
+    ) 
   }
   render() {
     return (
@@ -347,6 +334,7 @@ export class News extends Component {
                   title={element.title}
                   description={element.description}
                   imageUrl={element.urlToImage}
+                  newsUrl={element.url}
                 />
               </div>
             );
