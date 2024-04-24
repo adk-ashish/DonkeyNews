@@ -10,7 +10,7 @@ export class NewsItem extends Component {
           <h5 className="card-title">{title.slice(0,30)}</h5>
           <p className="card-text">{ description===null || description.length==0 ? " ": description.slice(0,70)}</p>   
           <a href={newsUrl} target="_blank" className="btn btn-primary">
-            Go somewhere
+            Read More...
           </a>
         </div>
       </div>

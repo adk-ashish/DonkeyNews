@@ -301,31 +301,67 @@ export class News extends Component {
         "Tehran almost immediately played down the attack as reckless fireworks, claiming no damage was caused, while Israel stayed silent.\r\nThis satellite image from Planet Labs PBC shows Irans nuclear site … [+9401 chars]",
     },
   ];
-  constructor() {                            //constructor calls after program is run
+  constructor() {
+    //constructor calls after program is run
     super();
     console.log("News is being run.");
     this.state = {
       articles: this.articles,
       loading: false,
+      page: 1,
+      totalResults: this.totalResults,
     };
   }
-  async componentDidMount() {     
-    console.log('cmd run')                                         //It opens after render method is called  
-    let url = "https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be"  
-    let data = await fetch(url);                                   // fetches data from url to store in data   
-    let parsedData = await data.json();                            // method to convert data into json object format
-    console.log(data)   
-    this.setState(
-      {
-        articles: parsedData.articles,                             // to update our state after data is fetched from api
-        loading: true,
-      }
-    ) 
+  async componentDidMount() {
+    console.log("cmd run"); //It opens after render method is called
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${this.state.page}`;
+    let data = await fetch(url); // fetches data from url to store in data
+    let parsedData = await data.json(); // method to convert data into json object format
+    console.log(data);
+    this.setState({
+      articles: parsedData.articles, // to update our state after data is fetched from api
+      loading: true,
+      page: 1,
+      totalResults: parsedData.totalResults
+    });
   }
+  handlePrevious = async () => {
+    let page = this.state.page - 1;
+    console.log(this.state.page+"previous clicked" + page);
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${page}`;
+    let data = await fetch(url); // fetches data from url to store in data
+    let parsedData = await data.json(); // method to convert data into json object format
+    console.log(data);
+    this.setState({
+      articles: parsedData.articles, // to update our state after data is fetched from api
+      loading: true,
+      page: page, //sets now page value smaller than 1
+    });
+  };
+  handleNext = async () => {
+    if (Math.ceil(this.state.totalResults / 20 )>= this.state.page+1)
+    {
+    console.log(this.state.totalResults)
+    let page= this.state.page + 1;
+    console.log(this.state.page+"next clicked" + page);
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${page}`;
+    let data = await fetch(url); // fetches data from url to store in data
+    let parsedData = await data.json(); // method to convert data into json object format
+    console.log(data);
+    this.setState({
+      // to update our state after data is fetched from api
+      loading: true,
+      page: page,
+      articles: parsedData.articles, 
+    });
+    }
+    
+    
+  };
   render() {
     return (
       <div className="container my-3">
-        <h2>Donkey News</h2>
+        <h3>Major Headlines</h3>
         <div className="row">
           {this.state.articles.map((element) => {
             return (
@@ -339,6 +375,19 @@ export class News extends Component {
               </div>
             );
           })}
+        </div>
+
+        <div className="d-flex justify-content-between my-5">
+          <button
+            className="btn btn-dark"
+            disabled={this.state.page == 1}
+            onClick={this.handlePrevious}
+          >
+            &larr; Previous
+          </button>
+          <button className="btn btn-dark" disabled={Math.ceil(this.state.totalResults / 20 ) < this.state.page+1} onClick={this.handleNext}>
+            Next &rarr;
+          </button>
         </div>
       </div>
     );
