@@ -3,12 +3,11 @@ import Navbar from './components/Navbar';
 import News from './components/News';
 
 export default class App extends Component {
-   c = 'john';
   render() {
     return (
       <div>
         <Navbar />
-        <News />
+        <News pageSize='21' country='us' apikey='f4579648168d48a9bcc25e8147c5e7be' category='sports'/>
       </div>
     )
   }

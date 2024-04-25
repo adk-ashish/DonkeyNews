@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import NewsItem from "./NewsItem";
+import Spinner from "./Spinner";
 
 export class News extends Component {
   articles = [
@@ -309,48 +310,51 @@ export class News extends Component {
       articles: this.articles,
       loading: false,
       page: 1,
-      totalResults: this.totalResults,
+      totalResults: 13,
     };
   }
   async componentDidMount() {
     console.log("cmd run"); //It opens after render method is called
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${this.state.page}`;
+    
+    this.setState({loading:true})
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=${this.props.apikey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url); // fetches data from url to store in data
     let parsedData = await data.json(); // method to convert data into json object format
     console.log(data);
     this.setState({
       articles: parsedData.articles, // to update our state after data is fetched from api
-      loading: true,
+      loading: false,
       page: 1,
       totalResults: parsedData.totalResults
     });
   }
   handlePrevious = async () => {
     let page = this.state.page - 1;
-    console.log(this.state.page+"previous clicked" + page);
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${page}`;
+    console.log(page+" of pages loaded " + Math.ceil(this.state.totalResults / this.props.pageSize ));
+    this.setState({loading:true})
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=${this.props.apikey}&page=${page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url); // fetches data from url to store in data
     let parsedData = await data.json(); // method to convert data into json object format
     console.log(data);
     this.setState({
       articles: parsedData.articles, // to update our state after data is fetched from api
-      loading: true,
+      loading: false,
       page: page, //sets now page value smaller than 1
     });
   };
   handleNext = async () => {
-    if (Math.ceil(this.state.totalResults / 20 )>= this.state.page+1)
+    if (Math.ceil(this.state.totalResults / this.props.pageSize )>= this.state.page+1)
     {
-    console.log(this.state.totalResults)
+    this.setState({loading:true})
     let page= this.state.page + 1;
-    console.log(this.state.page+"next clicked" + page);
-    let url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=f4579648168d48a9bcc25e8147c5e7be&page=${page}`;
+    console.log(page+" of pages loaded " + Math.ceil(this.state.totalResults / this.props.pageSize ));
+    let url = `https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=${this.props.apikey}&page=${page}&pageSize=${this.props.pageSize}`;
     let data = await fetch(url); // fetches data from url to store in data
     let parsedData = await data.json(); // method to convert data into json object format
     console.log(data);
     this.setState({
       // to update our state after data is fetched from api
-      loading: true,
+      loading: false,
       page: page,
       articles: parsedData.articles, 
     });
@@ -361,9 +365,10 @@ export class News extends Component {
   render() {
     return (
       <div className="container my-3">
-        <h3>Major Headlines</h3>
+        <h2 className="text-center" style={{margin:"30px"}}>Major Headlines</h2>
+        {this.state.loading && <Spinner />}
         <div className="row">
-          {this.state.articles.map((element) => {
+          {!this.state.loading && this.state.articles.map((element) => {
             return (
               <div className="col-md-4" key={element.url}>
                 <NewsItem
@@ -385,7 +390,8 @@ export class News extends Component {
           >
             &larr; Previous
           </button>
-          <button className="btn btn-dark" disabled={Math.ceil(this.state.totalResults / 20 ) < this.state.page+1} onClick={this.handleNext}>
+          {console.log(this.state.page+" of pages loaded " + Math.ceil(this.state.totalResults / this.props.pageSize ))}
+          <button className="btn btn-dark" disabled={Math.ceil(this.state.totalResults / this.props.pageSize ) <= this.state.page} onClick={this.handleNext}>
             Next &rarr;
           </button>
         </div>
